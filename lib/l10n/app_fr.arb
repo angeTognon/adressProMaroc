@@ -1,0 +1,19 @@
+{
+  "@@locale": "fr",
+  "appName": "Khadma",
+  "@appName": {
+    "description": "Le nom de l'application"
+  },
+  "appTagline": "Trouvez des professionnels au Maroc",
+  "@appTagline": {
+    "description": "Le slogan de l'application"
+  },
+  "hello": "Bonjour",
+  "@hello": {
+    "description": "Une salutation simple"
+  }
+}
+
+
+
+

@@ -1,0 +1,168 @@
+<?php
+/**
+ * Script pour insérer TOUS les services originaux de l'application
+ * Services : Plomberie, Électricité, Peinture, Menuiserie, Nettoyage, Jardinage, Chauffage, Climatisation
+ * 
+ * Exécutez ce script pour avoir les services originaux dans votre dashboard admin
+ */
+
+require_once '../db.php';
+
+try {
+    echo "<h2>Insertion des services originaux de l'application...</h2>\n";
+    echo "<pre>\n";
+    
+    // Services originaux de l'app Flutter (depuis mock_data.dart)
+    $services = [
+        [
+            'id' => '1',
+            'name' => 'Plomberie',
+            'name_fr' => 'Plomberie',
+            'icon' => '🔧',
+            'description' => 'Réparation et installation de plomberie',
+            'color' => '#2196F3',
+            'is_active' => 1
+        ],
+        [
+            'id' => '2',
+            'name' => 'Électricité',
+            'name_fr' => 'Électricité',
+            'icon' => '⚡',
+            'description' => 'Installation et réparation électrique',
+            'color' => '#FFC107',
+            'is_active' => 1
+        ],
+        [
+            'id' => '3',
+            'name' => 'Peinture',
+            'name_fr' => 'Peinture',
+            'icon' => '🎨',
+            'description' => 'Peinture intérieure et extérieure',
+            'color' => '#F44336',
+            'is_active' => 1
+        ],
+        [
+            'id' => '4',
+            'name' => 'Menuiserie',
+            'name_fr' => 'Menuiserie',
+            'icon' => '🪚',
+            'description' => 'Menuiserie et travaux sur mesure',
+            'color' => '#795548',
+            'is_active' => 1
+        ],
+        [
+            'id' => '5',
+            'name' => 'Nettoyage',
+            'name_fr' => 'Nettoyage',
+            'icon' => '🧹',
+            'description' => 'Nettoyage professionnel',
+            'color' => '#00BCD4',
+            'is_active' => 1
+        ],
+        [
+            'id' => '6',
+            'name' => 'Jardinage',
+            'name_fr' => 'Jardinage',
+            'icon' => '🌳',
+            'description' => 'Jardinage et entretien d\'espaces verts',
+            'color' => '#4CAF50',
+            'is_active' => 1
+        ],
+        [
+            'id' => '7',
+            'name' => 'Chauffage',
+            'name_fr' => 'Chauffage',
+            'icon' => '🔥',
+            'description' => 'Installation et réparation de chauffage',
+            'color' => '#FF5722',
+            'is_active' => 1
+        ],
+        [
+            'id' => '8',
+            'name' => 'Climatisation',
+            'name_fr' => 'Climatisation',
+            'icon' => '❄️',
+            'description' => 'Climatisation et ventilation',
+            'color' => '#03A9F4',
+            'is_active' => 1
+        ]
+    ];
+    
+    // Préparer la requête d'insertion avec gestion des doublons
+    $stmt = $conn->prepare("
+        INSERT INTO services (id, name, name_fr, icon, description, color, is_active)
+        VALUES (:id, :name, :name_fr, :icon, :description, :color, :is_active)
+        ON DUPLICATE KEY UPDATE
+            name = VALUES(name),
+            name_fr = VALUES(name_fr),
+            icon = VALUES(icon),
+            description = VALUES(description),
+            color = VALUES(color),
+            is_active = VALUES(is_active),
+            updated_at = CURRENT_TIMESTAMP
+    ");
+    
+    $insertedCount = 0;
+    $updatedCount = 0;
+    $errors = [];
+    
+    foreach ($services as $service) {
+        try {
+            $stmt->execute($service);
+            
+            // Vérifier si c'était une insertion ou une mise à jour
+            $affectedRows = $stmt->rowCount();
+            if ($affectedRows >= 1) {
+                // Vérifier si l'enregistrement existait déjà
+                $checkStmt = $conn->prepare("SELECT id FROM services WHERE id = :id");
+                $checkStmt->execute([':id' => $service['id']]);
+                $exists = $checkStmt->fetch();
+                
+                if ($exists) {
+                    $updatedCount++;
+                    echo "↻ Service '{$service['name_fr']}' mis à jour (ID: {$service['id']})\n";
+                } else {
+                    $insertedCount++;
+                    echo "✓ Service '{$service['name_fr']}' inséré (ID: {$service['id']})\n";
+                }
+            }
+        } catch (PDOException $e) {
+            $errorMsg = $e->getMessage();
+            $errors[] = "Service '{$service['name_fr']}': $errorMsg";
+            echo "✗ Erreur pour le service '{$service['name_fr']}': $errorMsg\n";
+        }
+    }
+    
+    echo "\n</pre>\n";
+    echo "<h2 style='color: green;'>✓ Insertion terminée !</h2>\n";
+    echo "<p><strong>Statistiques :</strong></p>\n";
+    echo "<ul>\n";
+    echo "  <li>Services insérés : <strong>$insertedCount</strong></li>\n";
+    echo "  <li>Services mis à jour : <strong>$updatedCount</strong></li>\n";
+    echo "  <li>Total traité : <strong>" . count($services) . "</strong></li>\n";
+    if (!empty($errors)) {
+        echo "  <li>Erreurs : <strong>" . count($errors) . "</strong></li>\n";
+    }
+    echo "</ul>\n";
+    
+    if (!empty($errors)) {
+        echo "<h3 style='color: orange;'>⚠️ Erreurs rencontrées :</h3>\n";
+        echo "<ul style='color: #d32f2f;'>\n";
+        foreach ($errors as $error) {
+            echo "  <li>$error</li>\n";
+        }
+        echo "</ul>\n";
+    }
+    
+    echo "<p style='margin-top: 30px;'>";
+    echo "<a href='admin.php' style='padding: 12px 24px; background: #C1272D; color: white; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;'>📊 Retour à l'administration</a>";
+    echo "</p>\n";
+    
+} catch(PDOException $e) {
+    echo "<h2 style='color: red;'>❌ Erreur lors de l'insertion</h2>\n";
+    echo "<pre style='background: #ffebee; padding: 15px; border-radius: 8px;'>";
+    echo "Erreur : " . htmlspecialchars($e->getMessage()) . "\n";
+    echo "Code d'erreur : " . $e->getCode() . "\n";
+    echo "</pre>\n";
+}
+?>
