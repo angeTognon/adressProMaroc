@@ -37,10 +37,9 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!isCompleted && mounted) {
       // Attendre que le widget soit complètement construit
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ShowCaseWidget.of(context).startShowCase([
-          _guestButtonKey,
-          _professionalKey,
-        ]);
+        ShowCaseWidget.of(
+          context,
+        ).startShowCase([_guestButtonKey, _professionalKey]);
       });
     }
   }
@@ -63,14 +62,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
       // En production, vous feriez ici l'appel API
       await PreferencesHelper.setLoggedIn(true);
-      await PreferencesHelper.setUserId('user_${DateTime.now().millisecondsSinceEpoch}');
+      await PreferencesHelper.setUserId(
+        'user_${DateTime.now().millisecondsSinceEpoch}',
+      );
       await PreferencesHelper.setGuest(false);
 
       if (!mounted) return;
 
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
+      Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
     }
   }
 
@@ -80,9 +81,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (!mounted) return;
 
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const HomeScreen()),
-    );
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
   }
 
   @override
@@ -108,10 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderRadius: BorderRadius.circular(25),
                     ),
                     child: const Center(
-                      child: Text(
-                        '🔧',
-                        style: TextStyle(fontSize: 50),
-                      ),
+                      child: Text('🔧', style: TextStyle(fontSize: 50)),
                     ),
                   ),
                 ),
@@ -119,67 +117,68 @@ class _LoginScreenState extends State<LoginScreen> {
                 Text(
                   AppStrings.login,
                   style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                      ),
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Connectez-vous pour accéder à tous les services',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 40),
                 TextFormField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                      labelText: AppStrings.email,
-                      prefixIcon: const Icon(Icons.email_outlined),
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: InputDecoration(
+                    labelStyle: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.normal,
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Veuillez entrer votre email';
-                      }
-                      if (!value.contains('@')) {
-                        return 'Email invalide';
-                      }
-                      return null;
-                    },
+                    labelText: AppStrings.email,
+                    prefixIcon: const Icon(Icons.email_outlined),
                   ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Veuillez entrer votre email';
+                    }
+                    if (!value.contains('@')) {
+                      return 'Email invalide';
+                    }
+                    return null;
+                  },
+                ),
                 const SizedBox(height: 20),
                 TextFormField(
-                    controller: _passwordController,
-                    obscureText: _obscurePassword,
-                    decoration: InputDecoration(
-                      labelText: AppStrings.password,
-                      prefixIcon: const Icon(Icons.lock_outlined),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
+                  controller: _passwordController,
+                  obscureText: _obscurePassword,
+                  decoration: InputDecoration(
+                    labelText: AppStrings.password,
+                    prefixIcon: const Icon(Icons.lock_outlined),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
                       ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Veuillez entrer votre mot de passe';
-                      }
-                      if (value.length < 6) {
-                        return 'Le mot de passe doit contenir au moins 6 caractères';
-                      }
-                      return null;
-                    },
                   ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Veuillez entrer votre mot de passe';
+                    }
+                    if (value.length < 6) {
+                      return 'Le mot de passe doit contenir au moins 6 caractères';
+                    }
+                    return null;
+                  },
+                ),
                 const SizedBox(height: 12),
                 Align(
                   alignment: Alignment.centerRight,
@@ -192,23 +191,26 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                    onPressed: _isLoading ? null : _login,
-                    child: _isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(AppColors.white),
+                  onPressed: _isLoading ? null : _login,
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              AppColors.white,
                             ),
-                          )
-                        : Text(AppStrings.login),
-                  ),
+                          ),
+                        )
+                      : Text(AppStrings.login),
+                ),
                 const SizedBox(height: 24),
                 Row(
                   children: [
-                    Expanded(child: Divider(color: AppColors.grey.withOpacity(0.3))),
+                    Expanded(
+                      child: Divider(color: AppColors.grey.withOpacity(0.3)),
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Text(
@@ -216,14 +218,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(color: AppColors.textSecondary),
                       ),
                     ),
-                    Expanded(child: Divider(color: AppColors.grey.withOpacity(0.3))),
+                    Expanded(
+                      child: Divider(color: AppColors.grey.withOpacity(0.3)),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 24),
                 Showcase(
                   key: _guestButtonKey,
                   title: '✨ Continuer sans compte',
-                  description: 'Explorez l\'application immédiatement sans créer de compte ! Parfait pour découvrir nos services et professionnels.',
+                  description:
+                      'Explorez l\'application immédiatement sans créer de compte ! Parfait pour découvrir nos services et professionnels.',
                   targetShapeBorder: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(8)),
                   ),
@@ -232,7 +237,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   disposeOnTap: false,
                   onTargetClick: () {
                     ShowCaseWidget.of(context).dismiss();
-                    ShowCaseWidget.of(context).startShowCase([_professionalKey]);
+                    ShowCaseWidget.of(
+                      context,
+                    ).startShowCase([_professionalKey]);
                   },
                   child: OutlinedButton(
                     onPressed: _continueAsGuest,
@@ -265,7 +272,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 Showcase(
                   key: _professionalKey,
                   title: '🚀 Devenir Professionnel',
-                  description: 'Vous êtes un professionnel ? Rejoignez-nous ! Créez votre compte professionnel et commencez à proposer vos services à des milliers de clients au Maroc.',
+                  description:
+                      'Vous êtes un professionnel ? Rejoignez-nous ! Créez votre compte professionnel et commencez à proposer vos services à des milliers de clients au Maroc.',
                   targetShapeBorder: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(8)),
                   ),
@@ -290,7 +298,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                     icon: const Icon(Icons.build, size: 20),
                     label: Text(
-                      localizations?.translate('become_professional') ?? 'Devenir Professionnel',
+                      localizations?.translate('become_professional') ??
+                          'Devenir Professionnel',
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
